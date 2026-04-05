@@ -4,10 +4,9 @@ import 'package:supporthive1/model/music.dart';
 import 'package:supporthive1/model/podcast.dart';
 import 'package:supporthive1/model/quote.dart';
 import 'package:supporthive1/model/wellness_resource.dart';
-
+import 'package:supporthive1/view/widgets/podcast_player_screen.dart';
 
 class HomeController extends ChangeNotifier {
-  // Navigation
   int _selectedTabIndex = 0;
   int get selectedTabIndex => _selectedTabIndex;
 
@@ -16,16 +15,36 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Quote Data
+  // 🔥 UPDATED: Dynamic podcast list
+  final List<Podcast> _podcasts = [
+    Podcast(
+      title: 'The Anxiety Solution',
+      author: 'Michael Roberts',
+      category: 'Mental Health',
+      duration: '11:00',
+      audioUrl:
+          "assets/audios/Secret_To_Mastering_Your_Emotions_Dr_Sweta_Adatia_Raj_Shama_podcast.mp3",
+      isNew: true,
+    ),
+  ];
+
+  // 🔥 NEW getter
+  List<Podcast> get podcasts => _podcasts;
+
+  // 🔥 NEW add method
+  void addPodcast(Podcast podcast) {
+    _podcasts.add(podcast);
+    notifyListeners();
+  }
+
   Quote getDailyQuote() {
     return Quote(
-      text: '"Small steps in the right direction can turn out to be the biggest steps of your life."',
+      text:
+          '"Small steps in the right direction can turn out to be the biggest steps of your life."',
       author: 'Unknown',
-      
     );
   }
 
-  // Activities Data
   List<Activity> getTodaysActivities() {
     return [
       Activity(
@@ -49,67 +68,14 @@ class HomeController extends ChangeNotifier {
     ];
   }
 
-  // Music Data
   List<Music> getRelaxingMusic() {
     return [
-      Music(
-        title: 'Nature Sounds',
-        category: 'Nature',
-        duration: '10:00',
-      ),
-      Music(
-        title: 'Rain & Thunder',
-        category: 'Ambient',
-        duration: '15:00',
-      ),
-      Music(
-        title: 'Ocean Waves',
-        category: 'Nature',
-        duration: '12:00',
-      ),
+      Music(title: 'Nature Sounds', category: 'Nature', duration: '10:00'),
+      Music(title: 'Rain & Thunder', category: 'Ambient', duration: '15:00'),
+      Music(title: 'Ocean Waves', category: 'Nature', duration: '12:00'),
     ];
   }
 
-  // Podcast Data
-  List<Podcast> getNewPodcasts() {
-    return [
-      Podcast(
-        title: 'The Anxiety Solution',
-        author: 'Michael Roberts',
-        category: 'Mental Health',
-        duration: '32:15',
-        isNew: true,
-      ),
-    ];
-  }
-
-  // Wellness Resources Data
-  // List<WellnessResource> getWellnessResources() {
-  //   return [
-  //     WellnessResource(
-  //       emoji: '⚠️',
-  //       title: 'Stress Management',
-  //       description: 'Learn techniques to manage daily stress',
-  //     ),
-  //     WellnessResource(
-  //       emoji: '💪',
-  //       title: 'Building Resilience',
-  //       description: 'Strengthen your mental wellness',
-  //     ),
-  //     WellnessResource(
-  //       emoji: '☀️',
-  //       title: 'Self-Care Tips',
-  //       description: 'Daily practices for better wellbeing',
-  //     ),
-  //     WellnessResource(
-  //       emoji: '📔',
-  //       title: 'Guided Journals',
-  //       description: 'Reflect on your wellness journey',
-  //     ),
-  //   ];
-  // }
-
-  // Stats Data
   Map<String, dynamic> getWellnessStats() {
     return {
       'dailyCheckIns': 7,
@@ -118,32 +84,20 @@ class HomeController extends ChangeNotifier {
     };
   }
 
-  // Button Actions (UI only - no actual functionality)
-  void onOpenDiary() {
-    // UI only action
+  void onOpenDiary() {}
+  void onTakeQuiz() {}
+  void onCheckWellnessStatus() {}
+  void onPlayMusic(String musicTitle) {}
+
+  void onListenPodcast(BuildContext context, Podcast podcast) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PodcastPlayerScreen(podcast: podcast),
+      ),
+    );
   }
 
-  void onTakeQuiz() {
-    // UI only action
-  }
-
-  void onCheckWellnessStatus() {
-    // UI only action
-  }
-
-  void onPlayMusic(String musicTitle) {
-    // UI only action
-  }
-
-  void onListenPodcast(String podcastTitle) {
-    // UI only action
-  }
-
-  void onStartActivity(String activityTitle) {
-    // UI only action
-  }
-
-  void onOpenResource(String resourceTitle) {
-    // UI only action
-  }
+  void onStartActivity(String activityTitle) {}
+  void onOpenResource(String resourceTitle) {}
 }

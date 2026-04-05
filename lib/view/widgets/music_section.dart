@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:supporthive1/model/music.dart';
 import 'dart:async';
 
+import 'package:supporthive1/view/widgets/music_library_screen.dart';
+
 class MusicSection extends StatefulWidget {
   final List<Music> musicList;
   final Function(String) onPlayMusic;
@@ -155,7 +157,10 @@ void initState() {
           ),
           const SizedBox(height: 12),
           ElevatedButton.icon(
-            onPressed: () => widget.onPlayMusic(music.title),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(
+                builder:(context)=>MusicLibraryScreen(), ));
+            },
             icon: const Icon(Icons.play_arrow, size: 18),
             label: const Text('Play'),
             style: ElevatedButton.styleFrom(

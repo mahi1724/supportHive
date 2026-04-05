@@ -3,6 +3,8 @@ class Podcast {
   final String author;
   final String category;
   final String duration;
+  final String audioUrl;   // 🔥 REQUIRED for playback
+  final String imageUrl;   // optional (for future UI upgrade)
   final bool isNew;
 
   Podcast({
@@ -10,6 +12,8 @@ class Podcast {
     required this.author,
     required this.category,
     required this.duration,
+    required this.audioUrl,
+    this.imageUrl = '',
     this.isNew = false,
   });
 
@@ -19,6 +23,8 @@ class Podcast {
       author: json['author'] ?? '',
       category: json['category'] ?? '',
       duration: json['duration'] ?? '',
+      audioUrl: json['audioUrl'] ?? '',   // 🔥 important
+      imageUrl: json['imageUrl'] ?? '',
       isNew: json['isNew'] ?? false,
     );
   }
@@ -29,6 +35,8 @@ class Podcast {
       'author': author,
       'category': category,
       'duration': duration,
+      'audioUrl': audioUrl,   // 🔥 important
+      'imageUrl': imageUrl,
       'isNew': isNew,
     };
   }

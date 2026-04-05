@@ -731,38 +731,44 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeTab() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildWelcomeCard(),
-          MotivationalQuoteCard(quote: _controller.getDailyQuote()),
-          QuizJournalSection(
-            onOpenDiary: _controller.onOpenDiary,
-            onTakeQuiz: _controller.onTakeQuiz,
-            onCheckStatus: _controller.onCheckWellnessStatus,
-          ),
-          MusicSection(
-            musicList: _controller.getRelaxingMusic(),
-            onPlayMusic: _controller.onPlayMusic,
-          ),
-          PodcastSection(
-            podcasts: _controller.getNewPodcasts(),
-            onListenPodcast: _controller.onListenPodcast,
-          ),
-          // _buildMindfulGamesSection(),
-          ActivitiesSection(
-            activities: _controller.getTodaysActivities(),
-            onStartActivity: _controller.onStartActivity,
-          ),
-          // WellnessResourcesSection(
-          //   resources: _controller.getWellnessResources(),
-          //   onOpenResource: _controller.onOpenResource,
-          // ),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
+  return SingleChildScrollView(
+    child: Column(
+      children: [
+        _buildWelcomeCard(),
+        MotivationalQuoteCard(quote: _controller.getDailyQuote()),
+        QuizJournalSection(
+          onOpenDiary: _controller.onOpenDiary,
+          onTakeQuiz: _controller.onTakeQuiz,
+          onCheckStatus: _controller.onCheckWellnessStatus,
+        ),
+        MusicSection(
+          musicList: _controller.getRelaxingMusic(),
+          onPlayMusic: _controller.onPlayMusic,
+        ),
+
+        // 🔥 UPDATED PODCAST SECTION (ONLY CHANGE)
+        AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) {
+            return PodcastSection(
+              podcasts: _controller.podcasts, // ✅ dynamic list
+              onListenPodcast: (podcast) {
+                _controller.onListenPodcast(context, podcast);
+              },
+            );
+          },
+        ),
+
+        ActivitiesSection(
+          activities: _controller.getTodaysActivities(),
+          onStartActivity: _controller.onStartActivity,
+        ),
+
+        const SizedBox(height: 20),
+      ],
+    ),
+  );
+}
 
   Widget _buildWelcomeCard() {
     return Container(
@@ -801,7 +807,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
- 
+
   Widget _buildStatCard(String title, String value, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
