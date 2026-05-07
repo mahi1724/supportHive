@@ -40,7 +40,7 @@ class ActivitiesSection extends StatelessWidget {
                 _buildActivityItem(activity),
               ],
             );
-          }).toList(),
+          }),
         ],
       ),
     );

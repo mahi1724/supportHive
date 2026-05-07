@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:supporthive1/controller/note_controller.dart';
 import 'package:supporthive1/view/notes_screen.dart';
 // import 'package:supporthive1/view/home_screen.dart';
 import 'package:supporthive1/view/quiz.dart';

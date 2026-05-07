@@ -3,7 +3,6 @@ import 'package:supporthive1/model/activity.dart';
 import 'package:supporthive1/model/music.dart';
 import 'package:supporthive1/model/podcast.dart';
 import 'package:supporthive1/model/quote.dart';
-import 'package:supporthive1/model/wellness_resource.dart';
 
 
 class HomeController extends ChangeNotifier {

@@ -250,7 +250,8 @@ class _SignInScreenState extends State<SignInScreen> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const HomeScreen(),
+                                builder: (context) =>
+                                    const WellnessQuizScreen(),
                               ),
                             );
                           },

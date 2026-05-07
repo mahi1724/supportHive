@@ -62,6 +62,8 @@
 // }
 
 ///////////////////////////////////////
+library;
+
 
 import 'package:flutter/material.dart';
 import 'package:supporthive1/controller/home_controller.dart';
@@ -100,7 +102,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.gamepad_rounded),
-              activeIcon: Icon(Icons.quiz),
+              activeIcon: Icon(Icons.gamepad_rounded),
               label: 'games',
             ),
           ],
