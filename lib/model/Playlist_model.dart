@@ -6,6 +6,7 @@ class Playlist {
   final String songs;
   final String duration;
   final Color color;
+  final String url;
 
   Playlist({
     required this.title,
@@ -13,5 +14,6 @@ class Playlist {
     required this.songs,
     required this.duration,
     required this.color,
+    required this.url,
   });
 }

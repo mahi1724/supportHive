@@ -1,9 +1,9 @@
 import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:supporthive1/controller/home_controller.dart';
-import 'package:supporthive1/model/podcast.dart';
+import 'package:file_picker/file_picker.dart';
+import '../../model/podcast.dart';
+import '../../service/podcast_service.dart';
+import '../../service/cloudinary_service.dart';
 
 class CreatePodcastScreen extends StatefulWidget {
   const CreatePodcastScreen({super.key});
@@ -13,279 +13,395 @@ class CreatePodcastScreen extends StatefulWidget {
 }
 
 class _CreatePodcastScreenState extends State<CreatePodcastScreen> {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController authorController = TextEditingController();
-  final TextEditingController durationController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
+  static const Color _brandGreen = Color(0xFF4A6741);
 
-  String? selectedCategory;
+  final _titleCtrl = TextEditingController();
+  final _authorCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
+  final _priceCtrl = TextEditingController(text: '0');
 
-  File? selectedFile;
+  String _category = 'Mental Health';
+  bool _isPremium = false;
+  File? _mediaFile;
+  String _mediaFileName = '';
 
-  final List<String> categories = [
-    "Mental Health",
-    "Meditation",
-    "Stress Relief",
-    "Sleep",
+  bool _isUploading = false;
+  double _uploadProgress = 0.0;
+  String? _error;
+
+  static const List<String> _categories = [
+    'Mental Health', 'Anxiety', 'Stress',
+    'Mindfulness', 'Motivation', 'Sleep', 'Other',
   ];
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _authorCtrl.dispose();
+    _descCtrl.dispose();
+    _priceCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['mp3', 'mp4', 'm4a', 'wav', 'aac'],
+    );
+    if (result == null || result.files.single.path == null) return;
+    setState(() {
+      _mediaFile = File(result.files.single.path!);
+      _mediaFileName = result.files.single.name;
+      _error = null;
+    });
+  }
+
+  Future<void> _submit() async {
+    final title = _titleCtrl.text.trim();
+    final author = _authorCtrl.text.trim();
+
+    if (title.isEmpty || author.isEmpty) {
+      setState(() => _error = 'Title and author are required.');
+      return;
+    }
+    if (_mediaFile == null) {
+      setState(() => _error = 'Please select an audio or video file.');
+      return;
+    }
+    if (_isPremium) {
+      final price = double.tryParse(_priceCtrl.text) ?? 0;
+      if (price <= 0) {
+        setState(() => _error = 'Enter a valid price for premium content.');
+        return;
+      }
+    }
+
+    setState(() {
+      _isUploading = true;
+      _uploadProgress = 0.0;
+      _error = null;
+    });
+
+    try {
+      final result = await CloudinaryService.uploadMedia(
+        _mediaFile!,
+        resourceType: 'video',
+        onProgress: (p) => setState(() => _uploadProgress = p),
+      );
+
+      final durationStr = _formatDuration(result.duration);
+      final price = _isPremium
+          ? (double.tryParse(_priceCtrl.text) ?? 0)
+          : 0.0;
+
+      final podcast = Podcast(
+        title: title,
+        author: author,
+        category: _category,
+        duration: durationStr,
+        audioUrl: result.resourceType != 'video' ? result.secureUrl : '',
+        videoUrl: result.resourceType == 'video' ? result.secureUrl : '',
+        description: _descCtrl.text.trim(),
+        isNew: true,
+        isPremium: _isPremium,
+        price: price,
+        createdAt: DateTime.now(),
+      );
+
+      await PodcastService.instance.addPodcast(podcast);
+
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      setState(() {
+        _isUploading = false;
+        _error = 'Upload failed: ${e.toString()}';
+      });
+    }
+  }
+
+  static String _formatDuration(int seconds) {
+    if (seconds <= 0) return '00:00';
+    final m = seconds ~/ 60;
+    final s = seconds % 60;
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F0),
-      body: SafeArea(
+      appBar: AppBar(
+        title: const Text('Create Podcast'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 1,
+      ),
+      body: _isUploading ? _buildProgress() : _buildForm(),
+    );
+  }
+
+  Widget _buildProgress() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // 🔹 Header
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey),
-                ),
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: _brandGreen.withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
-              child: Row(
-                children: [
-                  const Icon(Icons.mic, color: Color(0xFF4A6741)),
-                  const SizedBox(width: 8),
-                  const Text(
-                    "Create New Podcast",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  )
-                ],
+              child: const Icon(Icons.cloud_upload_rounded,
+                  color: _brandGreen, size: 40),
+            ),
+            const SizedBox(height: 24),
+            const Text('Uploading…',
+                style:
+                    TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            Text('${(_uploadProgress * 100).toStringAsFixed(0)}% complete',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+            const SizedBox(height: 20),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: _uploadProgress,
+                minHeight: 10,
+                backgroundColor: Colors.grey.shade200,
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(_brandGreen),
               ),
             ),
-
-            // 🔹 Form
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _label("Podcast Title *"),
-                    _textField(titleController, "e.g., Mindful Moments"),
-
-                    _label("Host Name *"),
-                    _textField(authorController, "e.g., Dr. John Doe"),
-
-                    _label("Duration *"),
-                    _textField(durationController, "e.g., 25:30"),
-                    const SizedBox(height: 4),
-                    const Text(
-                      "Format: MM:SS",
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-
-                    _label("Category *"),
-                    _dropdown(),
-
-                    _label("Description"),
-                    _textField(
-                      descriptionController,
-                      "Brief description of your podcast episode...",
-                      maxLines: 4,
-                    ),
-
-                    _label("Podcast Audio File"),
-                    _uploadBox(),
-
-                    const SizedBox(height: 30),
-                  ],
-                ),
-              ),
-            ),
-
-            // 🔹 Bottom Buttons
-            Container(
-              padding: const EdgeInsets.all(16),
-              color: Colors.white,
-              child: Row(
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("Cancel"),
-                  ),
-                  const Spacer(),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      if(titleController.text.isEmpty||authorController.text.isEmpty||durationController.text.isEmpty||selectedCategory==null || selectedFile == null){
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Please fill the all required field")),
-                        );
-                        return;
-                      }
-
-                      final controller = HomeController();
-
-                      final newPodcast = Podcast(
-                        title: titleController.text, 
-                        author: authorController.text, 
-                        category: selectedCategory!, 
-                        duration: durationController.text, 
-                        audioUrl: selectedFile!.path,
-                        isNew: true,
-                        );
-
-                        controller.addPodcast(newPodcast);
-
-                        Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text("Create Podcast"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3D7A2A),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            )
+            const SizedBox(height: 12),
+            Text('Please wait, this may take a moment…',
+                style:
+                    TextStyle(color: Colors.grey.shade400, fontSize: 12)),
           ],
         ),
       ),
     );
   }
 
-  // 🔹 Label
-  Widget _label(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16, bottom: 6),
-      child: Text(
-        text,
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ),
-    );
-  }
+  Widget _buildForm() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _label('Title *'),
+          _field(_titleCtrl, 'e.g. The Anxiety Solution'),
+          const SizedBox(height: 16),
 
-  // 🔹 TextField
-  Widget _textField(TextEditingController controller, String hint,
-      {int maxLines = 1}) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        hintText: hint,
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    );
-  }
+          _label('Author *'),
+          _field(_authorCtrl, 'e.g. Dr. Priya Mehta'),
+          const SizedBox(height: 16),
 
-  // 🔹 Dropdown
-  Widget _dropdown() {
-    return DropdownButtonFormField<String>(
-      value: selectedCategory,
-      items: categories
-          .map((cat) => DropdownMenuItem(
-                value: cat,
-                child: Text(cat),
-              ))
-          .toList(),
-      onChanged: (value) {
-        setState(() {
-          selectedCategory = value;
-        });
-      },
-      decoration: InputDecoration(
-        hintText: "Select Category",
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    );
-  }
+          _label('Category'),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: _category,
+            decoration: _deco('Select category'),
+            items: _categories
+                .map((c) =>
+                    DropdownMenuItem(value: c, child: Text(c)))
+                .toList(),
+            onChanged: (v) =>
+                setState(() => _category = v ?? _category),
+          ),
+          const SizedBox(height: 16),
 
-  // 🔹 Upload Box UI
-  Widget _uploadBox() {
-  return GestureDetector(
-    onTap: () async {
-      try{
-        print("Picker Opened");
+          _label('Description'),
+          TextField(
+            controller: _descCtrl,
+            maxLines: 3,
+            decoration: _deco('Brief description of this episode'),
+          ),
+          const SizedBox(height: 16),
 
-        FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['mp3', 'wav', 'm4a'],
-        allowMultiple: false,
-      );
+          // ── Premium toggle ───────────────────────────────────────────────
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.lock_rounded,
+                    color: Color(0xFFFFB300), size: 20),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Premium Content',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 14)),
+                      Text('Charge listeners to access this episode',
+                          style: TextStyle(
+                              color: Colors.black54, fontSize: 12)),
+                    ],
+                  ),
+                ),
+                Switch(
+                  value: _isPremium,
+                  onChanged: (v) => setState(() => _isPremium = v),
+                  activeColor: _brandGreen,
+                ),
+              ],
+            ),
+          ),
 
-      print("result:$result");
+          if (_isPremium) ...[
+            const SizedBox(height: 14),
+            _label('Price (₹) *'),
+            TextField(
+              controller: _priceCtrl,
+              keyboardType: TextInputType.number,
+              decoration: _deco('e.g. 99'),
+            ),
+          ],
 
-      if (result != null && result.files.single.path != null) {
-        final file = File(result.files.single.path!);
+          const SizedBox(height: 20),
 
-        // 🔥 Size check (100MB)
-        final fileSize = await file.length();
-        if (fileSize > 100 * 1024 * 1024) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("File too large (Max 100MB)")),
-          );
-          return;
-        }
-
-        setState(() {
-          selectedFile = file;
-        });
-
-        print("Selected: ${file.path}");
-
-      } else{
-        print("User cancelled");
-      }
-    } catch (e){
-      print("Error: $e");
-    }
-    },
-    child: Container(
-      height: 120,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade400),
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
-      ),
-      child: Center(
-        child: selectedFile == null
-            ? const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+          // ── File picker ──────────────────────────────────────────────────
+          _label('Audio / Video File *'),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: _pickFile,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: _mediaFile != null
+                    ? _brandGreen.withOpacity(0.05)
+                    : Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: _mediaFile != null
+                      ? _brandGreen
+                      : Colors.grey.shade400,
+                  width: 1.5,
+                ),
+              ),
+              child: Row(
                 children: [
-                  Icon(Icons.upload, size: 30, color: Colors.grey),
-                  SizedBox(height: 8),
-                  Text("Click to upload audio file"),
-                  SizedBox(height: 4),
-                  Text(
-                    "MP3, WAV, or M4A (Max 100MB)",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  Icon(
+                    _mediaFile != null
+                        ? Icons.check_circle_rounded
+                        : Icons.upload_file_rounded,
+                    color: _mediaFile != null
+                        ? _brandGreen
+                        : Colors.grey,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _mediaFile != null
+                          ? _mediaFileName
+                          : 'Tap to pick mp3, mp4, m4a, wav, aac…',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: _mediaFile != null
+                            ? Colors.black87
+                            : Colors.grey.shade600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
-              )
-            : Text(
-                selectedFile!.path.split('/').last,
-                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // ── Error ────────────────────────────────────────────────────────
+          if (_error != null)
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.red.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline,
+                      color: Colors.red.shade600, size: 18),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(_error!,
+                        style: TextStyle(
+                            color: Colors.red.shade700, fontSize: 13)),
+                  ),
+                ],
+              ),
+            ),
+
+          // ── Submit ───────────────────────────────────────────────────────
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: _submit,
+              icon: const Icon(Icons.cloud_upload_rounded,
+                  color: Colors.white),
+              label: const Text('Upload & Publish',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _brandGreen,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
+                elevation: 3,
+              ),
+            ),
+          ),
+          const SizedBox(height: 40),
+        ],
       ),
-    ),
-  );
-}
+    );
+  }
+
+  Widget _label(String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: Text(text,
+            style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87)),
+      );
+
+  Widget _field(TextEditingController ctrl, String hint) =>
+      TextField(controller: ctrl, decoration: _deco(hint));
+
+  InputDecoration _deco(String hint) => InputDecoration(
+        hintText: hint,
+        hintStyle:
+            TextStyle(color: Colors.grey.shade400, fontSize: 14),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide:
+              const BorderSide(color: _brandGreen, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14, vertical: 14),
+      );
 }

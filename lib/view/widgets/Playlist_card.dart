@@ -19,10 +19,17 @@ class PlaylistCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          // Icon box
+          // 🎵 Icon Box
           Container(
             width: 60,
             height: 60,
@@ -35,41 +42,52 @@ class PlaylistCard extends StatelessWidget {
 
           const SizedBox(width: 12),
 
-          // Text
+          // 📄 Playlist Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   playlist.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
                 Text(
                   playlist.subtitle,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    Text("🎵 ${playlist.songs}",
-                        style: const TextStyle(fontSize: 12)),
+                    Text(
+                      "🎵 ${playlist.songs}",
+                      style: const TextStyle(fontSize: 12),
+                    ),
                     const SizedBox(width: 10),
-                    Text("⏱ ${playlist.duration}",
-                        style: const TextStyle(fontSize: 12)),
+                    Text(
+                      "⏱ ${playlist.duration}",
+                      style: const TextStyle(fontSize: 12),
+                    ),
                   ],
-                )
+                ),
               ],
             ),
           ),
 
-          // Play button
+          // ▶️ Play Button
           CircleAvatar(
+            radius: 22,
             backgroundColor: const Color(0xFF3D7A2A),
             child: IconButton(
               icon: const Icon(Icons.play_arrow, color: Colors.white),
               onPressed: onPlay,
             ),
-          )
+          ),
         ],
       ),
     );

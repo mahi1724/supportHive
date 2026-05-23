@@ -2,11 +2,15 @@ class Music {
   final String title;
   final String category;
   final String duration;
+  final String source; // asset OR url
+  final bool isAsset;
 
   Music({
     required this.title,
     required this.category,
     required this.duration,
+    required this.source,
+    required this.isAsset,
   });
 
   String get subtitle => '$category • $duration';
@@ -16,6 +20,8 @@ class Music {
       title: json['title'] ?? '',
       category: json['category'] ?? '',
       duration: json['duration'] ?? '',
+      source: json['source'] ?? '',
+      isAsset: json['isAsset'] ?? false,
     );
   }
 
@@ -24,6 +30,8 @@ class Music {
       'title': title,
       'category': category,
       'duration': duration,
+      'source': source,
+      'isAsset': isAsset,
     };
   }
 }

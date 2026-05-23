@@ -1,615 +1,20 @@
-// import 'package:flutter/material.dart';
-// import 'package:supporthive1/controller/home_controller.dart';
-// import 'package:supporthive1/view/widgets/bottom_navigation_bar.dart';
-// import 'widgets/motivational_quote_card.dart';
-// import 'widgets/quiz_journal_section.dart';
-// import 'widgets/music_section.dart';
-// import 'widgets/podcast_section.dart';
-// import 'widgets/activities_section.dart';
-// import 'widgets/wellness_resources_section.dart';
-
-// class HomeScreen extends StatefulWidget {
-//   const HomeScreen({super.key});
-
-//   @override
-//   State<HomeScreen> createState() => _HomeScreenState();
-// }
-
-// class _HomeScreenState extends State<HomeScreen> {
-//   final HomeController _controller = HomeController();
-
-//   @override
-//   void dispose() {
-//     _controller.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: const Color(0xFFF5F5F0),
-//       appBar: _buildAppBar(),
-//       body: _buildBody(),
-//       bottomNavigationBar: CustomBottomNavigationBar(controller: _controller),
-//     );
-//   }
-
-//   PreferredSizeWidget _buildAppBar() {
-//     return AppBar(
-//       backgroundColor: Colors.white,
-//       elevation: 1,
-//       leading: IconButton(
-//         icon: const Icon(Icons.menu, color: Colors.black87),
-//         onPressed: () {},
-//       ),
-//       title: Row(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Icon(Icons.spa_outlined, color: Colors.teal.shade600, size: 24),
-//           const SizedBox(width: 8),
-//           const Text(
-//             'SUPPORTHIVE',
-//             style: TextStyle(
-//               color: Color(0xFF4A6741),
-//               fontSize: 18,
-//               fontWeight: FontWeight.bold,
-//               letterSpacing: 1,
-//             ),
-//           ),
-//         ],
-//       ),
-//       centerTitle: true,
-//       actions: [
-//         Stack(
-//           children: [
-//             IconButton(
-//               icon: const Icon(Icons.notifications_outlined, color: Colors.black87),
-//               onPressed: () {},
-//             ),
-//             Positioned(
-//               right: 12,
-//               top: 12,
-//               child: Container(
-//                 padding: const EdgeInsets.all(4),
-//                 decoration: const BoxDecoration(
-//                   color: Colors.red,
-//                   shape: BoxShape.circle,
-//                 ),
-//                 constraints: const BoxConstraints(
-//                   minWidth: 8,
-//                   minHeight: 8,
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//         const Padding(
-//           padding: EdgeInsets.only(right: 8.0),
-//           child: CircleAvatar(
-//             backgroundColor: Color(0xFF4A6741),
-//             radius: 18,
-//             child: Text(
-//               'G',
-//               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//             ),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   // ── Tab Router ──
-//   Widget _buildBody() {
-//     return AnimatedBuilder(
-//       animation: _controller,
-//       builder: (context, child) {
-//         switch (_controller.selectedTabIndex) {
-//           case 0:
-//             return _buildHomeTab();
-//           case 1:
-//             return const SearchScreen();
-//           case 2:
-//             return const CounsellingScreen();
-//           case 3:
-//             return const QuizScreen();
-//           default:
-//             return _buildHomeTab();
-//         }
-//       },
-//     );
-//   }
-
-//   Widget _buildHomeTab() {
-//     return SingleChildScrollView(
-//       child: Column(
-//         children: [
-//           _buildWelcomeCard(),
-//           MotivationalQuoteCard(quote: _controller.getDailyQuote()),
-//           QuizJournalSection(
-//             onOpenDiary: _controller.onOpenDiary,
-//             onTakeQuiz: _controller.onTakeQuiz,
-//             onCheckStatus: _controller.onCheckWellnessStatus,
-//           ),
-//           MusicSection(
-//             musicList: _controller.getRelaxingMusic(),
-//             onPlayMusic: _controller.onPlayMusic,
-//           ),
-//           PodcastSection(
-//             podcasts: _controller.getNewPodcasts(),
-//             onListenPodcast: _controller.onListenPodcast,
-//           ),
-//           _buildMindfulGamesSection(),
-//           ActivitiesSection(
-//             activities: _controller.getTodaysActivities(),
-//             onStartActivity: _controller.onStartActivity,
-//           ),
-//           WellnessResourcesSection(
-//             resources: _controller.getWellnessResources(),
-//             onOpenResource: _controller.onOpenResource,
-//           ),
-//           const SizedBox(height: 20),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildWelcomeCard() {
-//     return Container(
-//       margin: const EdgeInsets.all(16),
-//       padding: const EdgeInsets.all(20),
-//       decoration: BoxDecoration(
-//         gradient: LinearGradient(
-//           colors: [Colors.green.shade100, Colors.green.shade50],
-//         ),
-//         borderRadius: BorderRadius.circular(16),
-//       ),
-//       child: Row(
-//         children: [
-//           Expanded(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text(
-//                   'Welcome back, Google User! 👋',
-//                   style: TextStyle(
-//                     fontSize: 20,
-//                     fontWeight: FontWeight.bold,
-//                     color: Colors.grey.shade900,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 8),
-//                 Text(
-//                   'Relax, Recharge, Reflect - Your wellness journey continues today',
-//                   style: TextStyle(
-//                     fontSize: 14,
-//                     color: Colors.grey.shade700,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildMindfulGamesSection() {
-//     final stats = _controller.getWellnessStats();
-
-//     return Container(
-//       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             children: [
-//               Row(
-//                 children: [
-//                   const Icon(Icons.games, color: Color(0xFF4A6741)),
-//                   const SizedBox(width: 8),
-//                   const Text(
-//                     'Mindful Games',
-//                     style: TextStyle(
-//                       fontSize: 18,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               IconButton(
-//                 icon: const Icon(Icons.arrow_forward_ios, size: 18),
-//                 onPressed: () {},
-//               ),
-//             ],
-//           ),
-//           Text(
-//             'Relax through play',
-//             style: TextStyle(
-//               fontSize: 14,
-//               color: Colors.grey.shade600,
-//             ),
-//           ),
-//           const SizedBox(height: 12),
-//           Container(
-//             height: 200,
-//             decoration: BoxDecoration(
-//               gradient: const LinearGradient(
-//                 colors: [Colors.blue, Colors.lightBlue],
-//               ),
-//               borderRadius: BorderRadius.circular(16),
-//             ),
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 Container(
-//                   width: 80,
-//                   height: 80,
-//                   decoration: BoxDecoration(
-//                     color: Colors.white.withOpacity(0.3),
-//                     borderRadius: BorderRadius.circular(12),
-//                   ),
-//                   child: const Icon(Icons.gamepad, color: Colors.white, size: 40),
-//                 ),
-//                 const SizedBox(height: 12),
-//                 const Text(
-//                   'Bubble Breathing',
-//                   style: TextStyle(
-//                     fontSize: 20,
-//                     fontWeight: FontWeight.bold,
-//                     color: Colors.white,
-//                   ),
-//                 ),
-//                 const Text(
-//                   'Breathe and unwind',
-//                   style: TextStyle(color: Colors.white70),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           const SizedBox(height: 12),
-//           Row(
-//             children: [
-//               Expanded(
-//                 child: _buildStatCard(
-//                   'Daily Checkins',
-//                   stats['dailyCheckIns'].toString(),
-//                   const Color(0xFF4A6741),
-//                 ),
-//               ),
-//               const SizedBox(width: 12),
-//               Expanded(
-//                 child: _buildStatCard(
-//                   'Active Chats',
-//                   stats['activeChats'].toString(),
-//                   const Color(0xFF4A6741),
-//                 ),
-//               ),
-//             ],
-//           ),
-//           const SizedBox(height: 12),
-//           _buildStatCard(
-//             'Wellness Score',
-//             stats['wellnessScore'],
-//             const Color(0xFF4A6741),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildStatCard(String title, String value, Color color) {
-//     return Container(
-//       padding: const EdgeInsets.all(16),
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(12),
-//         border: Border.all(color: Colors.grey.shade200),
-//       ),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//         children: [
-//           Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Text(
-//                 title,
-//                 style: TextStyle(
-//                   fontSize: 13,
-//                   color: Colors.grey.shade600,
-//                 ),
-//               ),
-//               const SizedBox(height: 4),
-//               Text(
-//                 value,
-//                 style: const TextStyle(
-//                   fontSize: 24,
-//                   fontWeight: FontWeight.bold,
-//                   color: Color(0xFF4A6741),
-//                 ),
-//               ),
-//             ],
-//           ),
-//           CircleAvatar(
-//             backgroundColor: color,
-//             radius: 20,
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// // ── Tab Screens ───────────────────────────────────────────────────────────────
-// // Replace each body with your actual screen widget when ready
-
-// class SearchScreen extends StatelessWidget {
-//   const SearchScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Center(child: Text('Search Screen'));
-//   }
-// }
-
-// class CounsellingScreen extends StatelessWidget {
-//   const CounsellingScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Center(child: Text('Counselling Screen'));
-//   }
-// }
-
-// class QuizScreen extends StatelessWidget {
-//   const QuizScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Center(child: Text('Quiz Screen'));
-//   }
-// }
-
-// import 'package:flutter/material.dart';
-
-// class SearchScreen {
-//   final TextEditingController _controller = TextEditingController();
-//   bool _hasText = false;
-
-//   final List<_CategoryItem> _categories = const [
-//     _CategoryItem(
-//       label: 'Music',
-//       icon: Icons.music_note,
-//       color: Color(0xFF7C3AED),
-//     ),
-//     _CategoryItem(label: 'Podcasts', icon: Icons.mic, color: Color(0xFF2563EB)),
-//     _CategoryItem(
-//       label: 'Diary',
-//       icon: Icons.menu_book,
-//       color: Color(0xFF16A34A),
-//     ),
-//     _CategoryItem(
-//       label: 'Quiz',
-//       icon: Icons.help_outline,
-//       color: Color(0xFFEA580C),
-//     ),
-//   ];
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: const Color(0xFFF0EFE9),
-//       body: SafeArea(
-//         child: Padding(
-//           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               // ── Header ──
-//               Row(
-//                 children: [
-//                   GestureDetector(
-//                     onTap: () => Navigator.maybePop(context),
-//                     child: const Icon(Icons.close, color: Colors.black87),
-//                   ),
-//                   const SizedBox(width: 12),
-//                   const Text(
-//                     'Search',
-//                     style: TextStyle(
-//                       fontSize: 20,
-//                       fontWeight: FontWeight.bold,
-//                       color: Color(0xFF1A1A1A),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 16),
-
-//               // ── Search Field ──
-//               TextField(
-//                 controller: _controller,
-//                 autofocus: true,
-//                 decoration: InputDecoration(
-//                   hintText: 'Search music, podcasts, diary, qu...',
-//                   hintStyle: TextStyle(
-//                     color: Colors.grey.shade400,
-//                     fontSize: 14,
-//                   ),
-//                   prefixIcon: const Icon(Icons.search, color: Colors.grey),
-//                   suffixIcon: _hasText
-//                       ? GestureDetector(
-//                           onTap: () => _controller.clear(),
-//                           child: const Icon(
-//                             Icons.close,
-//                             color: Colors.grey,
-//                             size: 18,
-//                           ),
-//                         )
-//                       : null,
-//                   filled: true,
-//                   fillColor: Colors.white,
-//                   contentPadding: const EdgeInsets.symmetric(
-//                     horizontal: 16,
-//                     vertical: 12,
-//                   ),
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(12),
-//                     borderSide: BorderSide(color: Colors.grey.shade200),
-//                   ),
-//                   enabledBorder: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(12),
-//                     borderSide: BorderSide(color: Colors.grey.shade200),
-//                   ),
-//                   focusedBorder: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(12),
-//                     borderSide: const BorderSide(
-//                       color: Color(0xFF3D5A35),
-//                       width: 1.5,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               const SizedBox(height: 40),
-
-//               // ── Empty State ──
-//               if (!_hasText) ...[
-//                 Center(
-//                   child: Column(
-//                     children: [
-//                       Icon(Icons.search, size: 64, color: Colors.grey.shade300),
-//                       const SizedBox(height: 16),
-//                       const Text(
-//                         'Search Across SupportHive',
-//                         style: TextStyle(
-//                           fontSize: 17,
-//                           fontWeight: FontWeight.bold,
-//                           color: Color(0xFF1A1A1A),
-//                         ),
-//                       ),
-//                       const SizedBox(height: 6),
-//                       Text(
-//                         'Find music, podcasts, diary entries, quizzes, and\nmore',
-//                         textAlign: TextAlign.center,
-//                         style: TextStyle(
-//                           fontSize: 13,
-//                           color: Colors.grey.shade500,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 32),
-
-//                       // ── Category Grid ──
-//                       GridView.count(
-//                         crossAxisCount: 2,
-//                         shrinkWrap: true,
-//                         physics: const NeverScrollableScrollPhysics(),
-//                         crossAxisSpacing: 12,
-//                         mainAxisSpacing: 12,
-//                         childAspectRatio: 1.4,
-//                         children: _categories
-//                             .map((cat) => _CategoryCard(item: cat))
-//                             .toList(),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-
-//               // ── Search Results Placeholder ──
-//               if (_hasText) ...[
-//                 Text(
-//                   'Results for "${_controller.text}"',
-//                   style: const TextStyle(
-//                     fontSize: 14,
-//                     fontWeight: FontWeight.w600,
-//                     color: Colors.grey,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 16),
-//                 Center(
-//                   child: Text(
-//                     'No results found',
-//                     style: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-//                   ),
-//                 ),
-//               ],
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// // ─── Category Item Model ──────────────────────────────────────────────────────
-
-// class _CategoryItem {
-//   final String label;
-//   final IconData icon;
-//   final Color color;
-
-//   const _CategoryItem({
-//     required this.label,
-//     required this.icon,
-//     required this.color,
-//   });
-// }
-
-// // ─── Category Card ────────────────────────────────────────────────────────────
-
-// class _CategoryCard extends StatelessWidget {
-//   final _CategoryItem item;
-
-//   const _CategoryCard({required this.item});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: () {},
-//       child: Container(
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.circular(14),
-//           boxShadow: [
-//             BoxShadow(
-//               color: Colors.black.withOpacity(0.04),
-//               blurRadius: 8,
-//               offset: const Offset(0, 2),
-//             ),
-//           ],
-//         ),
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Icon(item.icon, color: item.color, size: 32),
-//             const SizedBox(height: 8),
-//             Text(
-//               item.label,
-//               style: const TextStyle(
-//                 fontSize: 13,
-//                 fontWeight: FontWeight.w600,
-//                 color: Color(0xFF333333),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-/////////////////////////
-
 import 'package:flutter/material.dart';
 import 'package:supporthive1/controller/home_controller.dart';
-import 'package:supporthive1/view/SearchScreen.dart';
+import 'package:supporthive1/model/user_profile_model.dart';
+import 'package:supporthive1/service/profile_service.dart';
+import 'package:supporthive1/view/screens/counselling/ai_chat_screen.dart';
+import 'package:supporthive1/view/search_screen.dart';
 import 'package:supporthive1/view/games_screen.dart';
+import 'package:supporthive1/view/screens/counselling/counselling_screen.dart';
 import 'package:supporthive1/view/widgets/app_drawer.dart';
 import 'package:supporthive1/view/widgets/bottom_navigation_bar.dart';
+import 'package:supporthive1/view/widgets/notification_screen.dart';
+import 'package:supporthive1/view/widgets/profile_screen.dart';
 import 'widgets/motivational_quote_card.dart';
 import 'widgets/quiz_journal_section.dart';
 import 'widgets/music_section.dart';
 import 'widgets/podcast_section.dart';
 import 'widgets/activities_section.dart';
-import 'widgets/wellness_resources_section.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -620,6 +25,30 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final HomeController _controller = HomeController();
+  final ProfileService _profileService = ProfileService();
+  UserProfileModel? _profile;
+
+  static const Color _brandGreen = Color(0xFF4A6741);
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      if (mounted) setState(() {});
+    });
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final profile = await _profileService.createOrFetchProfile();
+      if (mounted) setState(() => _profile = profile);
+    } catch (_) {}
+
+    _profileService.profileStream().listen((updated) {
+      if (updated != null && mounted) setState(() => _profile = updated);
+    });
+  }
 
   @override
   void dispose() {
@@ -630,155 +59,220 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(),
+      drawer: const AppDrawer(),
       backgroundColor: const Color(0xFFF5F5F0),
       appBar: _buildAppBar(),
       body: _buildBody(),
       bottomNavigationBar: CustomBottomNavigationBar(controller: _controller),
+      floatingActionButton: _buildFAB(),
     );
   }
 
+  // ── FAB ───────────────────────────────────────────────────────────────────
+  Widget _buildFAB() {
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: _brandGreen.withOpacity(0.35),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        shape: BoxShape.circle,
+      ),
+      child: FloatingActionButton(
+        backgroundColor: _brandGreen,
+        tooltip: 'Chat with Hive AI',
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AIChatScreen()),
+        ),
+        child: const Text('🐝', style: TextStyle(fontSize: 22)),
+      ),
+    );
+  }
+
+  // ── App Bar ───────────────────────────────────────────────────────────────
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
-      elevation: 1,
+      elevation: 0,
       leading: Builder(
-        builder: (context) => IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black87),
-          onPressed: () {
-            Scaffold.of(context).openDrawer();
-          },
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu_rounded, color: Colors.black87),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
         ),
       ),
+      centerTitle: true,
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.spa_outlined, color: Colors.teal.shade600, size: 24),
-          const SizedBox(width: 8),
+          Icon(Icons.spa_outlined, color: Colors.teal.shade600, size: 20),
+          const SizedBox(width: 6),
           const Text(
             'SUPPORTHIVE',
             style: TextStyle(
-              color: Color(0xFF4A6741),
-              fontSize: 18,
+              color: _brandGreen,
               fontWeight: FontWeight.bold,
-              letterSpacing: 1,
+              fontSize: 15,
+              letterSpacing: 0.5,
             ),
           ),
         ],
       ),
-      centerTitle: true,
       actions: [
-        Stack(
-          children: [
-            IconButton(
-              icon: const Icon(
-                Icons.notifications_outlined,
-                color: Colors.black87,
-              ),
-              onPressed: () {},
-            ),
-            Positioned(
-              right: 12,
-              top: 12,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
+        IconButton(
+          icon: Stack(
+            children: [
+              const Icon(Icons.notifications_outlined, color: Colors.black87),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Colors.redAccent,
+                    shape: BoxShape.circle,
+                  ),
                 ),
-                constraints: const BoxConstraints(minWidth: 8, minHeight: 8),
               ),
-            ),
-          ],
+            ],
+          ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => NotificationScreen()),
+          ),
         ),
-        const Padding(
-          padding: EdgeInsets.only(right: 8.0),
-          child: CircleAvatar(
-            backgroundColor: Color(0xFF4A6741),
-            radius: 18,
-            child: Text(
-              'G',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: GestureDetector(
+            onTap: () {
+              if (_profile != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProfileScreen(initialProfile: _profile!),
+                  ),
+                );
+              }
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: _brandGreen.withOpacity(0.3), width: 2),
+              ),
+              child: CircleAvatar(
+                radius: 17,
+                backgroundColor: _brandGreen,
+                child: _profile?.photoUrl.isNotEmpty == true
+                    ? ClipOval(
+                        child: Image.network(
+                          _profile!.photoUrl,
+                          width: 34,
+                          height: 34,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _profileInitials(),
+                        ),
+                      )
+                    : _profileInitials(),
               ),
             ),
           ),
         ),
       ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(1),
+        child: Container(height: 1, color: Colors.grey.shade100),
+      ),
     );
   }
 
-  // ── Tab Router ──
+  Widget _profileInitials() {
+    return Text(
+      _profile?.initials ?? 'U',
+      style: const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+        fontSize: 13,
+      ),
+    );
+  }
+
+  // ── Tab Router ────────────────────────────────────────────────────────────
   Widget _buildBody() {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        switch (_controller.selectedTabIndex) {
-          case 0:
-            return _buildHomeTab();
-          case 1:
-            return SearchScreen();
-          case 2:
-            return const CounsellingScreen();
-          case 3:
-            return const MindfulGamesScreen();
-          default:
-            return _buildHomeTab();
-        }
-      },
+    if (_controller.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: _brandGreen),
+      );
+    }
+    switch (_controller.selectedTabIndex) {
+      case 0:
+        return _buildHomeTab();
+      case 1:
+        return const SearchScreen();
+      case 2:
+        return const CounsellingScreen();
+      case 3:
+        return const MindfulGamesScreen();
+      default:
+        return _buildHomeTab();
+    }
+  }
+
+  // ── Home Tab ──────────────────────────────────────────────────────────────
+  Widget _buildHomeTab() {
+    return RefreshIndicator(
+      color: _brandGreen,
+      onRefresh: _controller.refresh,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildWelcomeCard(),
+            MotivationalQuoteCard(quote: _controller.dailyQuote),
+            QuizJournalSection(
+              onOpenDiary: _controller.onOpenDiary,
+              onTakeQuiz: _controller.onTakeQuiz,
+              onCheckStatus: () => _controller.onCheckWellnessStatus(context),
+            ),
+            _buildAIChatBanner(),
+            MusicSection(
+              musicList: _controller.musicList,
+              onPlayMusic: _controller.onPlayMusic,
+            ),
+            const PodcastSection(),
+            ActivitiesSection(
+              activities: _controller.activities,
+              onStartActivity: _controller.onStartActivity,
+            ),
+            const SizedBox(height: 90),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildHomeTab() {
-  return SingleChildScrollView(
-    child: Column(
-      children: [
-        _buildWelcomeCard(),
-        MotivationalQuoteCard(quote: _controller.getDailyQuote()),
-        QuizJournalSection(
-          onOpenDiary: _controller.onOpenDiary,
-          onTakeQuiz: _controller.onTakeQuiz,
-          onCheckStatus: _controller.onCheckWellnessStatus,
-        ),
-        MusicSection(
-          musicList: _controller.getRelaxingMusic(),
-          onPlayMusic: _controller.onPlayMusic,
-        ),
-
-        // 🔥 UPDATED PODCAST SECTION (ONLY CHANGE)
-        AnimatedBuilder(
-          animation: _controller,
-          builder: (context, _) {
-            return PodcastSection(
-              podcasts: _controller.podcasts, // ✅ dynamic list
-              onListenPodcast: (podcast) {
-                _controller.onListenPodcast(context, podcast);
-              },
-            );
-          },
-        ),
-
-        ActivitiesSection(
-          activities: _controller.getTodaysActivities(),
-          onStartActivity: _controller.onStartActivity,
-        ),
-
-        const SizedBox(height: 20),
-      ],
-    ),
-  );
-}
-
+  // ── Welcome Card ──────────────────────────────────────────────────────────
   Widget _buildWelcomeCard() {
+    final greeting = _getGreeting();
+    final name = _profile?.name ?? _controller.userName;
+    final hour = DateTime.now().hour;
+    final timeEmoji = hour < 12 ? '🌅' : hour < 17 ? '☀️' : '🌙';
+
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.green.shade100, Colors.green.shade50],
+          colors: [Colors.green.shade50, Colors.green.shade100],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.green.shade200.withOpacity(0.5)),
       ),
       child: Row(
         children: [
@@ -786,82 +280,159 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Text(timeEmoji, style: const TextStyle(fontSize: 16)),
+                    const SizedBox(width: 6),
+                    Text(
+                      greeting,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.green.shade700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
                 Text(
-                  'Welcome back, Google User!',
-                  style: TextStyle(
-                    fontSize: 20,
+                  name.isNotEmpty ? '$name 👋' : 'Welcome back 👋',
+                  style: const TextStyle(
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade900,
+                    color: Color(0xFF1A1A1A),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
-                  'Relax, Recharge, Reflect - Your wellness journey continues today',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                  'Relax, Recharge, Reflect — your wellness journey continues.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 12),
+          // Mini wellness ring
+          _WellnessMiniRing(),
         ],
       ),
     );
   }
 
-
-  Widget _buildStatCard(String title, String value, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+  // ── AI Chat Banner ────────────────────────────────────────────────────────
+  Widget _buildAIChatBanner() {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AIChatScreen()),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF4A6741),
-                ),
-              ),
-            ],
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF2F6B2F), Color(0xFF4A8C4A)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          CircleAvatar(backgroundColor: color, radius: 20),
-        ],
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF4A6741).withOpacity(0.25),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Center(
+                child: Text('🐝', style: TextStyle(fontSize: 24)),
+              ),
+            ),
+            const SizedBox(width: 14),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Chat with Hive AI',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                  SizedBox(height: 3),
+                  Text(
+                    'Ask about stress, anxiety, or find any app feature',
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: Colors.white,
+                size: 14,
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
   }
 }
 
-// ── Tab Screens ───────────────────────────────────────────────────────────────
-// SearchScreen is now imported from search_screen.dart above.
-// Replace these stubs with your real screens when ready.
-
-class CounsellingScreen extends StatelessWidget {
-  const CounsellingScreen({super.key});
-
+// ─────────────────────────────────────────────────────────
+// Wellness Mini Ring (decorative)
+// ─────────────────────────────────────────────────────────
+class _WellnessMiniRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Counselling Screen'));
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: const Color(0xFF4A6741).withOpacity(0.2),
+          width: 4,
+        ),
+        color: const Color(0xFF4A6741).withOpacity(0.08),
+      ),
+      child: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('🌿', style: TextStyle(fontSize: 22)),
+          ],
+        ),
+      ),
+    );
   }
 }
-
-// class QuizScreen extends StatelessWidget {
-//   const QuizScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Center(child: Text('Quiz Screen'));
-//   }
-// }

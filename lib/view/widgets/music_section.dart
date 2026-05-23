@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supporthive1/model/music.dart';
+import 'package:supporthive1/service/audio_service.dart';
 import 'dart:async';
-
 import 'package:supporthive1/view/widgets/music_library_screen.dart';
 
 class MusicSection extends StatefulWidget {
@@ -24,6 +24,12 @@ class _MusicSectionState extends State<MusicSection> {
   final PageController _pageController = PageController();
 
   @override
+  void initState() {
+    super.initState();
+    _startAutoScroll();
+  }
+
+  @override
   void dispose() {
     _timer?.cancel();
     _pageController.dispose();
@@ -31,28 +37,22 @@ class _MusicSectionState extends State<MusicSection> {
   }
 
   void _startAutoScroll() {
-  _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
-    if (!mounted || widget.musicList.isEmpty) return;
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (!mounted || widget.musicList.isEmpty) return;
 
-    int nextPage = _currentPage + 1;
+      int nextPage = _currentPage + 1;
 
-    if (nextPage >= widget.musicList.length) {
-      nextPage = 0;
-    }
+      if (nextPage >= widget.musicList.length) {
+        nextPage = 0;
+      }
 
-    _pageController.animateToPage(
-      nextPage,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
-  });
-}
-
-@override
-void initState() {
-  super.initState();
-  _startAutoScroll();
-}
+      _pageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,22 +68,43 @@ void initState() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // HEADER
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.music_note, color: Colors.purple),
-              const SizedBox(width: 8),
-              const Text(
-                'Relaxing Music',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: const [
+                  Icon(Icons.music_note, color: Colors.purple),
+                  SizedBox(width: 8),
+                  Text(
+                    'Relaxing Music',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              IconButton(
+                icon: const Icon(Icons.arrow_forward),
+                onPressed: () {
+                  AudioService.stop(); // 🔥 stop before navigation
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MusicLibraryScreen(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
+
           const SizedBox(height: 16),
+
+          // PAGE VIEW
           SizedBox(
-            height: 230,
+            height: 260, // 🔥 increased height (fix overflow)
             child: PageView(
               controller: _pageController,
               onPageChanged: (index) {
@@ -91,11 +112,15 @@ void initState() {
                   _currentPage = index;
                 });
               },
-              children: widget.musicList.map((music) => _buildMusicCard(music)).toList(),
+              children: widget.musicList
+                  .map((music) => _buildMusicCard(music))
+                  .toList(),
             ),
           ),
+
           const SizedBox(height: 12),
-          // Interactive scroll indicator dots
+
+          // DOT INDICATOR
           Center(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -107,8 +132,8 @@ void initState() {
                   width: _currentPage == index ? 24 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: _currentPage == index 
-                        ? Colors.purple 
+                    color: _currentPage == index
+                        ? Colors.purple
                         : Colors.purple.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -121,6 +146,7 @@ void initState() {
     );
   }
 
+  // 🔥 FIXED MUSIC CARD (NO OVERFLOW)
   Widget _buildMusicCard(Music music) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -128,50 +154,73 @@ void initState() {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: const Color(0xFF4A6741),
-              borderRadius: BorderRadius.circular(12),
+      child: SingleChildScrollView( // 🔥 prevents overflow
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFF4A6741),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.music_note,
+                  color: Colors.white, size: 40),
             ),
-            child: const Icon(Icons.music_note, color: Colors.white, size: 50),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            music.title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            music.subtitle,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(
-                builder:(context)=>MusicLibraryScreen(), ));
-            },
-            icon: const Icon(Icons.play_arrow, size: 18),
-            label: const Text('Play'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A6741),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+
+            const SizedBox(height: 10),
+
+            Text(
+              music.title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-        ],
+
+            Text(
+              music.subtitle,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            ElevatedButton.icon(
+              onPressed: () {
+                AudioService.stop(); // 🔥 prevent overlap
+                AudioService.play(music.source,
+                    isAsset: music.isAsset);
+              },
+              icon: const Icon(Icons.play_arrow, size: 16),
+              label: const Text('Play'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4A6741),
+                foregroundColor: Colors.white,
+              ),
+            ),
+
+            const SizedBox(height: 6),
+
+            ElevatedButton.icon(
+              onPressed: () {
+                AudioService.pause();
+              },
+              icon: const Icon(Icons.pause, size: 16),
+              label: const Text('Pause'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey.shade700,
+                foregroundColor: Colors.white,
+              ),
+            ),
+
+            const SizedBox(height: 12),
+          ],
+        ),
       ),
     );
   }
